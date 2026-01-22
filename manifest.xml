@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <!-- 
+        entry="SimpleRunApp" doit correspondre au nom de votre classe principale
+        id doit être unique (utilisez un UUID ou votre identifiant)
+        type="datafield" car c'est un champ de données pour une activité
+    -->
+    <iq:application entry="BucketRateApp" id="12345678-1234-1234-1234-123456789abc" launcherIcon="@Drawables.LauncherIcon" minSdkVersion="4.0.0" name="@Strings.AppName" type="watch-app" version="1.0.0">
+        <!-- Devices compatibles -->
+        <iq:products>
+            <iq:product id="venu2"/>
+        </iq:products>
+        <!-- Permissions nécessaires -->
+        <iq:permissions>
+            <!-- GPS -->
+            <!-- Capteurs (FC, etc.) -->
+            <!-- Historique des capteurs -->
+            <iq:uses-permission id="Positioning"/>
+            <iq:uses-permission id="Sensor"/>
+            <iq:uses-permission id="SensorHistory"/>
+        </iq:permissions>
+        <!-- Langues supportées -->
+        <iq:languages>
+            <iq:language>eng</iq:language>
+            <iq:language>fre</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>

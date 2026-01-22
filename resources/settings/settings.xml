@@ -1,0 +1,13 @@
+<settings>
+    <setting propertyKey="@Properties.salaire" title="Salaire horaire">
+        <settingConfig type="numeric" min="0" max="1000" />
+    </setting>
+    
+    <setting propertyKey="@Properties.heureDepart" title="Heure de départ (minutes)">
+        <settingConfig type="numeric" min="0" max="1440" />
+    </setting>
+    
+    <setting propertyKey="@Properties.bucketRate" title="Bucket Rate">
+        <settingConfig type="numeric" min="0.1" max="100" />
+    </setting>
+</settings>
