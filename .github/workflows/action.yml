@@ -1,4 +1,4 @@
-name: Build and Release Fruit Picking Rate
+name: Build and Release Venu 2 Connect IQ
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: 🔧 Build
     runs-on: ubuntu-latest
 
     steps:
@@ -15,14 +15,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🚚 Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y wget unzip openssl
+        run: sudo apt-get update && sudo apt-get install -y wget unzip openssl default-jre
 
       - name: 🔧 Download and set up Connect IQ SDK
         run: |
           mkdir -p ~/sdk
           cd ~/sdk
-          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
-          unzip -qq connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
+          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.4.0-2025-12-03-5122605dc.zip
+          unzip -qq connectiq-sdk-lin-8.4.0-2025-12-03-5122605dc.zip
           echo "$HOME/sdk/bin" >> $GITHUB_PATH
 
       - name: 👩‍💻 Generate developer key
@@ -31,21 +31,23 @@ jobs:
           openssl pkcs8 -topk8 -inform PEM -outform DER -in ~/developer_key.pem -out ~/developer_key.der -nocrypt
 
       - name: ⌚ Build PRG
-        run: monkeyc -y ~/developer_key.der -f monkey.jungle -w -o /tmp/BucketRateApp.prg
+        run: |
+          java -Xms1g -Dfile.encoding=UTF-8 -jar ~/sdk/bin/monkeybrains.jar -o /tmp/garminfruitpicking.prg -f monkey.jungle -y ~/developer_key.der -w
 
       - name: 🏪 Build IQ
-        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d venu2 -w -e -o /tmp/BucketRateApp.iq
+        run: |
+          java -Xms1g -Dfile.encoding=UTF-8 -jar ~/sdk/bin/monkeybrains.jar -o /tmp/garminfruitpicking.iq -f monkey.jungle -y ~/developer_key.der -w -e
 
       - name: 📦 Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: BucketRateApp-build
+          name: garminfruitpicking-build
           path: |
-            BucketRateApp.prg
-            BucketRateApp.iq
+            /tmp/garminfruitpicking.prg
+            /tmp/garminfruitpicking.iq
 
   release:
-    name: Release
+    name: 📦 Release
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -74,24 +76,24 @@ jobs:
       - name: 🚚 Download artifacts from build
         uses: actions/download-artifact@v4
         with:
-          name: BucketRateApp-build
+          name: garminfruitpicking-build
 
       - name: 📝 Rename outputs with version
         run: |
-          mv /tmp/BucketRateApp.prg "BucketRateApp_${{ steps.version.outputs.version }}.prg"
-          mv /tmp/BucketRateApp.iq "BucketRateApp_${{ steps.version.outputs.version }}.iq"
+          mv /tmp/garminfruitpicking.prg "garminfruitpicking_${{ steps.version.outputs.version }}.prg"
+          mv /tmp/garminfruitpicking.iq "garminfruitpicking_${{ steps.version.outputs.version }}.iq"
 
-      - name: 🚀 Create Release
+      - name: 📦 Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            BucketRateApp_*.prg
-            BucketRateApp_*.iq
+            garminfruitpicking_*.prg
+            garminfruitpicking_*.iq
           tag_name: v${{ steps.version.outputs.version }}
           name: Release ${{ steps.version.outputs.version }}
           body: |
             Version: ${{ steps.version.outputs.version }}
             Device: Venu 2
-            App: BucketRateApp
+            App: garminfruitpicking
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
