@@ -36,7 +36,7 @@ jobs:
 
       - name: 🏪 Build IQ
         run: |
-          java -Xms1g -Dfile.encoding=UTF-8 -jar ~/sdk/bin/monkeybrains.jar -o /tmp/garminfruitpicking.iq -f monkey.jungle -y ~/developer_key.der -w -e
+          java -Xms1g -Dfile.encoding=UTF-8 -jar ~/sdk/bin/monkeybrains.jar -o /tmp/garminfruitpicking.iq -f monkey.jungle -y ~/developer_key.der -w -e -d connectiq
 
       - name: 📦 Upload artifacts
         uses: actions/upload-artifact@v4
