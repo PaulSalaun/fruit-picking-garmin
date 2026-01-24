@@ -31,7 +31,7 @@ class CircularNumberPicker extends WatchUi.View {
         var height = dc.getHeight();
         var centerX = width / 2;
         var centerY = height / 2;
-        var radius = width * 0.38; // Rayon du cercle pour les chiffres
+        var radius = width * 0.38;
         
         // Fond noir
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
@@ -65,7 +65,7 @@ class CircularNumberPicker extends WatchUi.View {
             dc.drawText(x, y, Graphics.FONT_MEDIUM, text, Graphics.TEXT_JUSTIFY_CENTER);
         }
         
-        // Afficher la valeur actuelle au centre (gros et bien visible)
+        // Afficher la valeur actuelle au centre
         var displayValue = currentValue;
         if (displayValue.length() == 0) {
             displayValue = "-";
