@@ -1,0 +1,46 @@
+name: Build Venu 2 Connect IQ
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚚 Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget unzip openssl
+
+      - name: 🔧 Download and set up Connect IQ SDK
+        run: |
+          mkdir -p ~/sdk
+          cd ~/sdk
+          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
+          unzip -qq connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
+          echo "$HOME/sdk/bin" >> $GITHUB_PATH
+
+      - name: 👩‍💻 Generate developer key
+        run: |
+          openssl genrsa -out ~/developer_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER -in ~/developer_key.pem -out ~/developer_key.der -nocrypt
+
+      - name: ⌚ Build PRG for Venu 2
+        run: |
+          monkeyc -y ~/developer_key.der -f monkey.jungle -d veniq:venu2 -w -o BucketRateApp.prg
+
+      - name: 🏪 Build IQ
+        run: |
+          monkeyc -y ~/developer_key.der -f monkey.jungle -d veniq:venu2 -w -e -o BucketRateApp.iq
+
+      - name: 📦 Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: BucketRateApp-build
+          path: |
+            BucketRateApp.prg
+            BucketRateApp.iq

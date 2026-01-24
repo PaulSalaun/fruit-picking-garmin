@@ -17,9 +17,40 @@ class MenuView extends WatchUi.View {
         showConfigMenu();
     }
     
+    // Appelé quand la vue redevient visible (après retour d'un picker)
+    function onUpdate(dc as Dc) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        
+        // Fond noir
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.clear();
+        
+        // Dessiner un indicateur vert sur le côté droit (position du bouton SELECT)
+        // Cercle vert à droite au milieu de l'écran
+        dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(width - 20, height / 2, 8);
+        
+        // Ajouter une flèche ou icône "play" dans le cercle
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.fillPolygon([
+            [width - 23, height / 2 - 5],
+            [width - 23, height / 2 + 5],
+            [width - 15, height / 2]
+        ]);
+        
+        // Le menu se dessine lui-même par-dessus
+    }
+    
     function showConfigMenu() as Void {
-        // Créer le menu de configuration
-        menu = new WatchUi.Menu2({:title => "Configuration"});
+        // Créer le menu de configuration avec les valeurs actuelles
+        menu = createConfigMenu();
+        WatchUi.pushView(menu, new ConfigMenuDelegate(), WatchUi.SLIDE_IMMEDIATE);
+    }
+    
+    // Créer le menu avec les valeurs actuelles
+    function createConfigMenu() as WatchUi.Menu2 {
+        var newMenu = new WatchUi.Menu2({:title => "Configuration"});
         
         // Récupérer les valeurs actuelles
         var salaire = Application.Properties.getValue("salaire");
@@ -46,7 +77,7 @@ class MenuView extends WatchUi.View {
         var heureStr = heures.format("%02d") + ":" + minutes.format("%02d");
         
         // Ajouter les items au menu avec les valeurs actuelles
-        menu.addItem(
+        newMenu.addItem(
             new WatchUi.MenuItem(
                 "Salaire",
                 salaire.format("%.2f") + " $/h",
@@ -55,7 +86,7 @@ class MenuView extends WatchUi.View {
             )
         );
         
-        menu.addItem(
+        newMenu.addItem(
             new WatchUi.MenuItem(
                 "Heure début",
                 heureStr,
@@ -64,7 +95,7 @@ class MenuView extends WatchUi.View {
             )
         );
         
-        menu.addItem(
+        newMenu.addItem(
             new WatchUi.MenuItem(
                 "Bucket Rate",
                 bucketRate.format("%.1f"),
@@ -73,21 +104,17 @@ class MenuView extends WatchUi.View {
             )
         );
         
-        menu.addItem(
+        // Ajouter l'élément pour démarrer
+        newMenu.addItem(
             new WatchUi.MenuItem(
-                "Démarrer",
-                "",
+                "DEMARRER",
+                "Lancer l'activite",
                 :start,
                 {}
             )
         );
         
-        WatchUi.pushView(menu, new ConfigMenuDelegate(), WatchUi.SLIDE_IMMEDIATE);
-    }
-    
-    function onUpdate(dc as Dc) as Void {       
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-        dc.clear();
+        return newMenu;
     }
     
     function onHide() as Void {

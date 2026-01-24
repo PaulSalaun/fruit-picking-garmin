@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 import Toybox.Graphics;
+import Toybox.System;
 
 class MenuDelegate extends WatchUi.BehaviorDelegate {
     
@@ -9,14 +10,22 @@ class MenuDelegate extends WatchUi.BehaviorDelegate {
         BehaviorDelegate.initialize();
     }
     
+    // Bouton SELECT pour lancer l'activité
+    function onSelect() as Boolean {
+        // Lancer l'activité principale
+        var view = new BucketRateView();
+        var delegate = new BucketRateDelegate();
+        WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
+        return true;
+    }
+    
     function onBack() as Boolean {
         System.exit();
-        return true;
     }
     
 }
 
-// Factory pour créer le picker du salaire
+// Factory pour créer le picker du salaire (conservée pour compatibilité si besoin)
 class SalairePickerFactory extends WatchUi.PickerFactory {
     private var mValues as Array<Number>;
     

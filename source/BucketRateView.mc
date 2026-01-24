@@ -108,7 +108,7 @@ class BucketRateView extends WatchUi.View {
         // === INFOS EN BAS ===
         var heureDepartHeures = heureDepart / 60;
         var heureDepartMinutes = heureDepart % 60;
-        var infos = "Début: " + heureDepartHeures.format("%02d") + ":" + heureDepartMinutes.format("%02d") + 
+        var infos = "Start: " + heureDepartHeures.format("%02d") + ":" + heureDepartMinutes.format("%02d") + 
                     " | Rate: " + bucketRate.format("%.1f");
         
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);

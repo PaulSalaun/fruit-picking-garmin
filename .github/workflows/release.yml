@@ -1,0 +1,56 @@
+name: Release Venu 2 Connect IQ
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🕵️ Get version from manifest
+        id: version
+        run: |
+          VERSION=$(grep -oP 'version="\K[^"]+' monkeyc/manifest.xml)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Tag attendu : v$VERSION"
+
+      - name: 🚨 Check if tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ steps.version.outputs.version }} already exist !"
+            exit 1
+          fi
+
+      - name: 🚚 Download artifacts from build
+        uses: actions/download-artifact@v3
+        with:
+          name: BucketRateApp-build
+
+      - name: 📝 Rename outputs with version
+        run: |
+          mv BucketRateApp.prg "BucketRateApp_${{ steps.version.outputs.version }}.prg"
+          mv BucketRateApp.iq "BucketRateApp_${{ steps.version.outputs.version }}.iq"
+
+      - name: 🚀 Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            BucketRateApp_*.prg
+            BucketRateApp_*.iq
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            Version: ${{ steps.version.outputs.version }}
+            Device: Venu 2
+            App: BucketRateApp
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

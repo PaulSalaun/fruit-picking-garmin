@@ -3,6 +3,10 @@ import Toybox.Lang;
 import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.System;
+import Toybox.Timer;
+
+// Variable globale pour forcer le rafraîchissement
+var gMenuNeedsRefresh = false;
 
 class ConfigMenuDelegate extends WatchUi.Menu2InputDelegate {
     
@@ -10,84 +14,94 @@ class ConfigMenuDelegate extends WatchUi.Menu2InputDelegate {
         Menu2InputDelegate.initialize();
     }
     
+    // Appelé quand le menu redevient visible
+    function onShow() as Void {
+        if (gMenuNeedsRefresh) {
+            gMenuNeedsRefresh = false;
+            refreshMenu();
+        }
+    }
+    
+    function refreshMenu() as Void {
+        // Fermer le menu actuel
+        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+        
+        // Attendre un instant puis recréer le menu
+        var timer = new Timer.Timer();
+        timer.start(method(:recreateMenu), 100, false);
+    }
+    
+    function recreateMenu() as Void {
+        var menuView = new MenuView();
+        WatchUi.pushView(menuView, new MenuDelegate(), WatchUi.SLIDE_IMMEDIATE);
+    }
+    
     function onSelect(item as WatchUi.MenuItem) as Void {
         var id = item.getId();
         
+        System.println("Menu item selected: " + id); // Debug
+        
         if (id == :salaire) {
-            // NumberPicker pour le salaire (format décimal avec 2 chiffres)
-            var salaireActuel = Application.Properties.getValue("salaire");
-            if (salaireActuel == null) { salaireActuel = 25.0; }
-            
-            // Créer un picker avec 3 colonnes : dizaines, unités, décimales
-            var title = new WatchUi.Text({
-                :text => "Salaire $/h",
-                :locX => WatchUi.LAYOUT_HALIGN_CENTER,
-                :locY => WatchUi.LAYOUT_VALIGN_BOTTOM,
-                :color => Graphics.COLOR_WHITE
-            });
-            
-            var factoryDizaines = new ChiffreDizainesFactory();
-            var factoryUnites = new ChiffreUnitesFactory();
-            var factoryPoint = new PointFactory();
-            var factoryDecimales = new ChiffreDecimalesFactory();
-            
-            var picker = new WatchUi.Picker({
-                :title => title, 
-                :pattern => [factoryDizaines, factoryUnites, factoryPoint, factoryDecimales]
-            });
-            
-            WatchUi.pushView(picker, new SalaireNumberPickerDelegate(), WatchUi.SLIDE_IMMEDIATE);
+            // Sélecteur circulaire pour le salaire
+            var picker = new CircularNumberPicker("Salaire $/h", "salaire", 5, true);
+            var delegate = new CircularNumberPickerDelegate(picker);
+            WatchUi.pushView(picker, delegate, WatchUi.SLIDE_IMMEDIATE);
             
         } else if (id == :heureDepart) {
-            // Picker d'heure standard avec 2 colonnes (heures : minutes)
-            var heureDepartMinutes = Application.Properties.getValue("heureDepart");
-            if (heureDepartMinutes == null) { heureDepartMinutes = 420; }
-            
-            var title = new WatchUi.Text({
-                :text => "Heure début",
-                :locX => WatchUi.LAYOUT_HALIGN_CENTER,
-                :locY => WatchUi.LAYOUT_VALIGN_BOTTOM,
-                :color => Graphics.COLOR_WHITE
-            });
-            
-            var factoryH = new HeurePickerFactory();
-            var factoryM = new MinutePickerFactory();
-            var picker = new WatchUi.Picker({:title => title, :pattern => [factoryH, factoryM]});
-            WatchUi.pushView(picker, new HeureMenuPickerDelegate(), WatchUi.SLIDE_IMMEDIATE);
+            // Sélecteur circulaire pour l'heure (format HH:MM)
+            var picker = new CircularNumberPicker("Heure début", "heureDepart", 5, true);
+            var delegate = new CircularNumberPickerDelegate(picker);
+            WatchUi.pushView(picker, delegate, WatchUi.SLIDE_IMMEDIATE);
             
         } else if (id == :bucketRate) {
-            // NumberPicker pour le bucket rate (nombre entier de 1 à 99)
-            var bucketRateActuel = Application.Properties.getValue("bucketRate");
-            if (bucketRateActuel == null) { bucketRateActuel = 7.0; }
-            
-            var title = new WatchUi.Text({
-                :text => "Bucket Rate",
-                :locX => WatchUi.LAYOUT_HALIGN_CENTER,
-                :locY => WatchUi.LAYOUT_VALIGN_BOTTOM,
-                :color => Graphics.COLOR_WHITE
-            });
-            
-            var factoryDizaines = new BucketDizainesFactory();
-            var factoryUnites = new BucketUnitesFactory();
-            
-            var picker = new WatchUi.Picker({
-                :title => title, 
-                :pattern => [factoryDizaines, factoryUnites]
-            });
-            
-            WatchUi.pushView(picker, new BucketRateNumberPickerDelegate(), WatchUi.SLIDE_IMMEDIATE);
+            // Sélecteur circulaire pour le bucket rate
+            var picker = new CircularNumberPicker("Bucket Rate", "bucketRate", 3, true);
+            var delegate = new CircularNumberPickerDelegate(picker);
+            WatchUi.pushView(picker, delegate, WatchUi.SLIDE_IMMEDIATE);
             
         } else if (id == :start) {
-            // Démarrer l'activité avec les paramètres configurés
+            System.println("Starting activity..."); // Debug
+            // Lancer l'activité principale
             var view = new BucketRateView();
             var delegate = new BucketRateDelegate();
             WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
+            
+        } else if (id == :separator) {
+            // Ne rien faire pour le séparateur
+            System.println("Separator clicked - ignoring"); // Debug
+        } else {
+            System.println("Unknown menu item: " + id); // Debug
         }
     }
     
     function onBack() as Void {
         // Quitter complètement l'application
         System.exit();
+    }
+    
+    // Gérer le bouton SELECT quand aucun élément n'est sélectionné
+    // ou pour lancer l'activité directement
+    function onMenu() as Boolean {
+        // Lancer l'activité principale
+        var view = new BucketRateView();
+        var delegate = new BucketRateDelegate();
+        WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
+        return true;
+    }
+    
+    // Alternative : intercepter le bouton SELECT
+    function onKey(keyEvent as KeyEvent) as Boolean {
+        var key = keyEvent.getKey();
+        
+        if (key == WatchUi.KEY_ENTER) {
+            // Si SELECT est pressé sans élément sélectionné, lancer l'activité
+            var view = new BucketRateView();
+            var delegate = new BucketRateDelegate();
+            WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
+            return true;
+        }
+        
+        return false;
     }
     
 }
