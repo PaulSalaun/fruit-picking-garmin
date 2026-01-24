@@ -21,18 +21,23 @@ jobs:
         run: |
           mkdir -p ~/sdk
           cd ~/sdk
+
           wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.4.0-2025-12-03-5122605dc.zip
           unzip -qq connectiq-sdk-lin-8.4.0-2025-12-03-5122605dc.zip
 
-          SDK_DIR=$(find ~/sdk -maxdepth 1 -type d -name "connectiq-sdk-*")
+          SDK_DIR=$(find ~/sdk -type f -name monkeyc | head -n1 | xargs dirname | xargs dirname)
+
+          echo "SDK_DIR=$SDK_DIR"
           echo "$SDK_DIR/bin" >> $GITHUB_PATH
           echo "CIQ_SDK_HOME=$SDK_DIR" >> $GITHUB_ENV
+
 
       - name: 🧪 Verify Connect IQ SDK
         run: |
           which monkeyc
           monkeyc --version
-          monkeyc -d | grep venu
+          echo "Devices:"
+          monkeyc -d
 
       - name: 👩‍💻 Generate developer key
         run: |
