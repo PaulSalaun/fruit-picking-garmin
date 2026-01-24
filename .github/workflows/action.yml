@@ -31,6 +31,11 @@ jobs:
           echo "$SDK_DIR/bin" >> $GITHUB_PATH
           echo "CIQ_SDK_HOME=$SDK_DIR" >> $GITHUB_ENV
 
+      - name: 🔍 List available devices
+        run: |
+          echo "Devices disponibles :"
+          monkeyc --list-devices | grep -i venu || echo "Aucun appareil Venu trouvé"
+
       - name: 👩‍💻 Generate developer key
         run: |
           openssl genrsa -out ~/developer_key.pem 4096
