@@ -45,16 +45,6 @@ jobs:
 
           echo "~/sdk/bin" >> $GITHUB_PATH
 
-
-      - name: 🔍 Verify SDK installation
-        run: |
-          echo "SDK_HOME: $SDK_HOME"
-          ls -la $SDK_HOME/bin/
-          
-          # Vérifier que monkeyc est accessible
-          which monkeyc
-          monkeyc --version || echo "Version non disponible"
-
       - name: 👩‍💻 Generate developer key
         run: |
           openssl genrsa -out ~/developer_key.pem 4096
