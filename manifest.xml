@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
-    <iq:application entry="BucketRateApp" id="12345678-1234-1234-1234-123456789abc" launcherIcon="@Drawables.LauncherIcon" minSdkVersion="4.0.0" name="@Strings.AppName" type="watch-app" version="1.0.0">
+    <iq:application entry="BucketRateApp" id="garminfruitpicking" launcherIcon="@Drawables.LauncherIcon" minSdkVersion="4.0.0" name="@Strings.AppName" type="watch-app" version="1.0.0">
         <iq:products>
             <iq:product id="venu2"/>
         </iq:products>
