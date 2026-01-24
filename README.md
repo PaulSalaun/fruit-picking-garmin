@@ -41,8 +41,7 @@ Currently available for:
 ---
 
 ## 📬 Contact
-For questions, suggestions, or bug reports, feel free to reach out:
-- **Email**: [paul.salaun@example.com](mailto:paul.salaun@example.com)
+For questions, suggestions, or bug reports, feel free to open an issue.
 
 ---
 
