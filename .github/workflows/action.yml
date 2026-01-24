@@ -32,12 +32,14 @@ jobs:
           echo "CIQ_SDK_HOME=$SDK_DIR" >> $GITHUB_ENV
 
 
-      - name: 🧪 Verify Connect IQ SDK
+      - name: 🧪 Compile test for Venu 2
         run: |
-          which monkeyc
-          monkeyc --version
-          echo "Devices:"
-          monkeyc -d
+          monkeyc -y ~/developer_key.der \
+                  -f monkey.jungle \
+                  -w \
+                  -d venu2 \
+                  -o /tmp/test.prg
+
 
       - name: 👩‍💻 Generate developer key
         run: |
