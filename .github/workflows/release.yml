@@ -1,12 +1,53 @@
-name: Release Venu 2 Connect IQ
+name: Build and Release Fruit Picking Rate
 
 on:
   push:
     branches:
-      - main
+      - '**'
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚚 Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget unzip openssl
+
+      - name: 🔧 Download and set up Connect IQ SDK
+        run: |
+          mkdir -p ~/sdk
+          cd ~/sdk
+          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
+          unzip -qq connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
+          echo "$HOME/sdk/bin" >> $GITHUB_PATH
+
+      - name: 👩‍💻 Generate developer key
+        run: |
+          openssl genrsa -out ~/developer_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER -in ~/developer_key.pem -out ~/developer_key.der -nocrypt
+
+      - name: ⌚ Build PRG
+        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d veniq:venu2 -w -o BucketRateApp.prg
+
+      - name: 🏪 Build IQ
+        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d veniq:venu2 -w -e -o BucketRateApp.iq
+
+      - name: 📦 Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BucketRateApp-build
+          path: |
+            BucketRateApp.prg
+            BucketRateApp.iq
+
   release:
+    name: Release
+    needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -23,15 +64,15 @@ jobs:
           echo "Tag attendu : v$VERSION"
 
       - name: 🚨 Check if tag already exists
-        id: check_tag
         run: |
           if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
-            echo "Tag v${{ steps.version.outputs.version }} already exist !"
+            echo "Le tag v${{ steps.version.outputs.version }} existe déjà !"
+            echo "As-tu oublié de mettre à jour la version dans manifest.xml ?"
             exit 1
           fi
 
       - name: 🚚 Download artifacts from build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: BucketRateApp-build
 
