@@ -31,7 +31,7 @@ jobs:
           openssl pkcs8 -topk8 -inform PEM -outform DER -in ~/developer_key.pem -out ~/developer_key.der -nocrypt
 
       - name: ⌚ Build PRG
-        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d venu2 -w -o /tmp/BucketRateApp.prg
+        run: monkeyc -y ~/developer_key.der -f monkey.jungle -w -o /tmp/BucketRateApp.prg
 
       - name: 🏪 Build IQ
         run: monkeyc -y ~/developer_key.der -f monkey.jungle -d venu2 -w -e -o /tmp/BucketRateApp.iq
