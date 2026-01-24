@@ -31,10 +31,6 @@ jobs:
           echo "$SDK_DIR/bin" >> $GITHUB_PATH
           echo "CIQ_SDK_HOME=$SDK_DIR" >> $GITHUB_ENV
 
-      - name: 🧪 Verify Venu devices
-        run: |
-          ls "$CIQ_SDK_HOME/devices" | grep venu
-
       - name: 👩‍💻 Generate developer key
         run: |
           openssl genrsa -out ~/developer_key.pem 4096
