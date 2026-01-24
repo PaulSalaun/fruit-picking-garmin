@@ -14,30 +14,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          java-version: '8'
+          java-version: '11'
           distribution: 'temurin'
 
       - name: 🚚 Install dependencies
         run: sudo apt-get update && sudo apt-get install -y wget unzip openssl
 
-      - name: 📱 Get devices definitions
-        run: |
-          cd ~
-          wget https://hatl.at/devices.zip
-          unzip -qq devices.zip
-
       - name: 🔧 Download and set up Connect IQ SDK
         run: |
           mkdir -p ~/sdk
           cd ~/sdk
+          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-7.2.1-2024-05-07-15ef5d3cf.zip
+          unzip -qq connectiq-sdk-lin-7.2.1-2024-05-07-15ef5d3cf.zip
+          SDK_DIR=$(find ~/sdk -type d -name "bin" | head -n1 | xargs dirname)
+          echo "SDK_HOME=$SDK_DIR" >> $GITHUB_ENV
+          echo "$SDK_DIR/bin" >> $GITHUB_PATH
 
-          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
-          unzip -qq connectiq-sdk-lin-8.1.1-2025-03-27-66dae750f.zip
-
-          echo "~/sdk/bin" >> $GITHUB_PATH
+      - name: 🔍 Verify SDK installation
+        run: |
+          echo "SDK_HOME: $SDK_HOME"
+          ls -la $SDK_HOME/bin/
+          
+          # Vérifier que monkeyc est accessible
+          which monkeyc
+          monkeyc --version || echo "Version non disponible"
 
       - name: 👩‍💻 Generate developer key
         run: |
@@ -75,9 +78,19 @@ jobs:
       - name: 🕵️ Get version from manifest
         id: version
         run: |
-          VERSION=$(grep -oP 'version="\K[^"]+' manifest.xml)
+          # Chercher manifest.xml à la racine ou dans monkeyc/
+          if [ -f "manifest.xml" ]; then
+            MANIFEST_PATH="manifest.xml"
+          elif [ -f "monkeyc/manifest.xml" ]; then
+            MANIFEST_PATH="monkeyc/manifest.xml"
+          else
+            echo "manifest.xml non trouvé !"
+            exit 1
+          fi
+          
+          VERSION=$(grep '<iq:application' "$MANIFEST_PATH" | grep -oP 'version="\K[^"]+')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Tag attendu : v$VERSION"
+          echo "Tag : v$VERSION"
 
       - name: 🚨 Check if tag already exists
         run: |
