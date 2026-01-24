@@ -31,10 +31,10 @@ jobs:
           openssl pkcs8 -topk8 -inform PEM -outform DER -in ~/developer_key.pem -out ~/developer_key.der -nocrypt
 
       - name: ⌚ Build PRG
-        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d veniq:venu2 -w -o BucketRateApp.prg
+        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d venu2 -w -o /tmp/BucketRateApp.prg
 
       - name: 🏪 Build IQ
-        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d veniq:venu2 -w -e -o BucketRateApp.iq
+        run: monkeyc -y ~/developer_key.der -f monkey.jungle -d venu2 -w -e -o /tmp/BucketRateApp.iq
 
       - name: 📦 Upload artifacts
         uses: actions/upload-artifact@v4
@@ -78,8 +78,8 @@ jobs:
 
       - name: 📝 Rename outputs with version
         run: |
-          mv BucketRateApp.prg "BucketRateApp_${{ steps.version.outputs.version }}.prg"
-          mv BucketRateApp.iq "BucketRateApp_${{ steps.version.outputs.version }}.iq"
+          mv /tmp/BucketRateApp.prg "BucketRateApp_${{ steps.version.outputs.version }}.prg"
+          mv /tmp/BucketRateApp.iq "BucketRateApp_${{ steps.version.outputs.version }}.iq"
 
       - name: 🚀 Create Release
         uses: softprops/action-gh-release@v1
