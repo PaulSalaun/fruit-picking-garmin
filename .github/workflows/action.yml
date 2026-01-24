@@ -24,6 +24,8 @@ jobs:
           wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-8.4.0-2025-12-03-5122605dc.zip
           unzip -qq connectiq-sdk-lin-8.4.0-2025-12-03-5122605dc.zip
           echo "$HOME/sdk/bin" >> $GITHUB_PATH
+          cp ~/sdk/devices.xml ~/garmin/devices/
+          echo "DEVICES_PATH=$HOME/garmin" >> $GITHUB_ENV
 
       - name: 👩‍💻 Generate developer key
         run: |
@@ -32,11 +34,11 @@ jobs:
 
       - name: ⌚ Build PRG
         run: |
-          java -Xms1g -Dfile.encoding=UTF-8 -jar ~/sdk/bin/monkeybrains.jar -o /tmp/garminfruitpicking.prg -f monkey.jungle -y ~/developer_key.der -w
+           monkeyc -y ~/developer_key.der -f monkey.jungle -w -o /tmp/garminfruitpicking.prg
 
       - name: 🏪 Build IQ
         run: |
-          java -Xms1g -Dfile.encoding=UTF-8 -jar ~/sdk/bin/monkeybrains.jar -o /tmp/garminfruitpicking.iq -f monkey.jungle -y ~/developer_key.der -w -e -d connectiq
+          monkeyc -y ~/developer_key.der -f monkey.jungle -w -e -o /tmp/garminfruitpicking.iq
 
       - name: 📦 Upload artifacts
         uses: actions/upload-artifact@v4
