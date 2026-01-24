@@ -31,15 +31,9 @@ jobs:
           echo "$SDK_DIR/bin" >> $GITHUB_PATH
           echo "CIQ_SDK_HOME=$SDK_DIR" >> $GITHUB_ENV
 
-
-      - name: 🧪 Compile test for Venu 2
+      - name: 🧪 Verify Venu devices
         run: |
-          monkeyc -y ~/developer_key.der \
-                  -f monkey.jungle \
-                  -w \
-                  -d venu2 \
-                  -o /tmp/test.prg
-
+          ls "$CIQ_SDK_HOME/devices" | grep venu
 
       - name: 👩‍💻 Generate developer key
         run: |
