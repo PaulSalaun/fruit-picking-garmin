@@ -1,5 +1,6 @@
 <properties>
-    <property id="salaire" type="float">24.5</property>
+    <property id="salaire" type="float">23.5</property>
     <property id="heureDepart" type="number">420</property>
     <property id="bucketRate" type="float">7.0</property>
+    <property id="buckets" type="number">0</property>
 </properties>
